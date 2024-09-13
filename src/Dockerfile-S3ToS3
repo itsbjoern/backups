@@ -1,5 +1,5 @@
 # Start base
-FROM alpine:latest
+FROM alpine:3.17.10
 
 RUN apk add --update --no-cache heirloom-mailx fuse curl
 
