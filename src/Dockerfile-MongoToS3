@@ -17,7 +17,7 @@ CMD ["tail","-fn0","/var/log/cron.log"]
 # End base
 
 
-COPY <<EOF /bin/backup_service
+COPY <<'EOF' /bin/backup_service
 #!/bin/sh
 
 echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION" >> "/var/log/backup-last.log"
