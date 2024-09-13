@@ -1,0 +1,39 @@
+# Start base
+FROM alpine:latest
+
+RUN apk add --update --no-cache heirloom-mailx fuse curl
+
+RUN \
+    mkdir -p /var/spool/cron/crontabs /var/log; \
+    touch /var/log/cron.log;
+
+COPY ./base/backup.sh /bin/backup
+COPY ./base/entry.sh /entry.sh
+COPY ./base/backup_utils.sh /backup_utils.sh
+
+WORKDIR "/"
+ENTRYPOINT ["/entry.sh"]
+CMD ["tail","-fn0","/var/log/cron.log"]
+# End base
+
+
+COPY <<EOF /bin/backup_service
+#!/bin/sh
+
+echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION" >> "/var/log/backup-last.log"
+echo "S3_BUCKET: $S3_BUCKET" >> "/var/log/backup-last.log"
+echo "B2_BUCKET: $B2_BUCKET" >> "/var/log/backup-last.log"
+
+rclone config create s3remote s3 env_auth true
+
+rclone config create b2remote b2 env_auth true
+
+RCLONE_S3_PROVIDER="AWS" RCLONE_S3_ENV_AUTH="true" RCLONE_S3_REGION="$AWS_DEFAULT_REGION" RCLONE_S3_ACL="private" RCLONE_S3_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" RCLONE_S3_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" RCLONE_B2_ACCOUNT="$B2_ACCOUNT_ID" RCLONE_B2_KEY="$B2_ACCOUNT_KEY" rclone sync --fast-list "s3remote:$S3_BUCKET" "b2remote:$B2_BUCKET" -v --log-file "/var/log/backup-last.log"
+
+EOF
+
+
+FROM rclone/rclone:latest AS rclone
+COPY --from=rclone /usr/local/bin/rclone /bin/rclone
+
+RUN chmod +x /bin/backup_service

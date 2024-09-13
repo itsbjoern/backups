@@ -1,0 +1,35 @@
+# Start base
+FROM alpine:latest
+
+RUN apk add --update --no-cache heirloom-mailx fuse curl
+
+RUN \
+    mkdir -p /var/spool/cron/crontabs /var/log; \
+    touch /var/log/cron.log;
+
+COPY ./base/backup.sh /bin/backup
+COPY ./base/entry.sh /entry.sh
+COPY ./base/backup_utils.sh /backup_utils.sh
+
+WORKDIR "/"
+ENTRYPOINT ["/entry.sh"]
+CMD ["tail","-fn0","/var/log/cron.log"]
+# End base
+
+
+COPY <<EOF /bin/backup_service
+#!/bin/sh
+
+echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION" >> "/var/log/backup-last.log"
+echo "SRC_BUCKET: $SRC_BUCKET" >> "/var/log/backup-last.log"
+echo "DEST_BUCKET: $DEST_BUCKET" >> "/var/log/backup-last.log"
+
+source /backup_utils.sh
+FOLDER=$(formatDate "$DATE_FMT")
+
+aws s3 sync "s3://$SRC_BUCKET" "s3://$DEST_BUCKET/$FOLDER" >> "/var/log/backup-last.log" 2>&1
+EOF
+
+
+RUN apk add --no-cache aws-cli
+RUN chmod +x /bin/backup_service
