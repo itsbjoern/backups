@@ -32,6 +32,21 @@ Available arguments for all backups:
 | MONGO_URI             | The URI of the MongoDB database to be backed up                       | Yes      | N/A           | mongodb://localhost:27017/mydatabase                        |
 
 
+
+## PostgresToS3
+
+| Name                  | Description                                                           | Required | Default Value | Example                                                     |
+|-----------------------|-----------------------------------------------------------------------|----------|---------------|-------------------------------------------------------------|
+| AWS_DEFAULT_REGION    | The AWS region where the backup will be stored                        | Yes      | N/A           | eu-west-2                                                   |
+| AWS_ACCESS_KEY_ID     | The AWS access key ID for authentication                              | Yes      | N/A           | XXXXXXXXXXXXXXXXXXXX                                        |
+| AWS_SECRET_ACCESS_KEY | The AWS secret access key for authentication                          | Yes      | N/A           | XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                    |
+| S3_BUCKET             | The name of the S3 bucket where the backup will be stored             | Yes      | N/A           | bucket-name                                                 |
+| PGUSER                | The Postgres database username                                        | Yes      | N/A           |                                                             |
+| PGPASSWORD            | The Postgres database user password                                   | Yes      | N/A           |                                                             |
+| PGHOST                | The Postgres database host                                            | Yes      | N/A           |                                                             |
+| PGDBNAME              | The Postgres database name                                            | Yes      | N/A           |                                                             |
+
+
 ## S3ToB2
 
 | Name                  | Description                                                           | Required | Default Value | Example                                                     |
