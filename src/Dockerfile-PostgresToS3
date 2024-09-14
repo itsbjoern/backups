@@ -26,11 +26,11 @@ echo "S3_BUCKET: $S3_BUCKET" >> "/var/log/backup-last.log"
 source /backup_utils.sh
 FOLDER="$(formatDate "$DATE_FMT").tar.gz"
 
-pg_dump --format=custom --no-acl --no-owner -h $PGHOST --username $PGUSER $PGDBNAME > /backup/backup.dump
+pg_dump --format=custom --no-acl --no-owner -h $PGHOST --username $PGUSER $PGDBNAME > /tmp/backup.dump
 
-tar -cvzf /backup/$FOLDER /backup/backup.dump
+tar -cvzf /tmp/$FOLDER /tmp/backup.dump
 
-aws s3 cp "/backup/$FOLDER" "s3://$S3_BUCKET/$FOLDER" >> "/var/log/backup-last.log" 2>&1
+aws s3 cp "/tmp/$FOLDER" "s3://$S3_BUCKET/$FOLDER" >> "/var/log/backup-last.log" 2>&1
 
 rm -rf /backup/*
 EOF
